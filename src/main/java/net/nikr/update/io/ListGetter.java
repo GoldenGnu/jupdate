@@ -30,11 +30,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import net.nikr.update.update.OnlineError;
 
 
 public class ListGetter {
 
-	public List<String> get(String link) {
+	public List<String> get(String link) throws OnlineError {
 		BufferedReader in = null;
 		List<String> raw = new ArrayList<String>();
 		try {
@@ -46,9 +47,9 @@ public class ListGetter {
 				raw.add(str);
 			}
 		} catch (MalformedURLException ex) {
-			throw new RuntimeException("Failed to get: " + link, ex);
+			throw new OnlineError("Failed to get: " + link, ex);
 		} catch (IOException ex) {
-			throw new RuntimeException("Failed to get: " + link, ex);
+			throw new OnlineError("Failed to get: " + link, ex);
 		} finally {
 			if (in != null) {
 				try {

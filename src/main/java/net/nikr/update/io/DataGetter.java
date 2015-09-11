@@ -26,22 +26,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.MalformedInputException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import net.nikr.update.SplashUpdater;
+import net.nikr.update.update.OnlineError;
 
 
 public class DataGetter {
 
-	public void get(String link, File out, String checksum) {
-		get(link, out, checksum, 0);
+	public void get(String link, File out, String checksum, boolean sub) throws OnlineError {
+		get(link, out, checksum, sub, 0);
 	}
 
-	private void get(String link, File out, String checksum, int tries) {
-		System.out.println("Downloading: " + link + " to: " + out.getAbsolutePath());
+	private void get(String link, File out, String checksum, boolean sub, int tries) throws OnlineError {
 		InputStream input = null;
 		OutputStream output = null;
 		int n;
@@ -49,17 +50,33 @@ public class DataGetter {
 		try {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			URL url = new URL(link);
-			URLConnection con = url.openConnection();
-
+			HttpURLConnection con = (HttpURLConnection)url.openConnection();
+			int max = con.getContentLength();
+			double now = 0;
+			if (sub) {
+				SplashUpdater.setSubProgress(0);
+			} else {
+				SplashUpdater.setProgress(0);
+			}
+			
 			byte[] buffer = new byte[4096];
 			input = new DigestInputStream(con.getInputStream(), md);
 			output = new FileOutputStream(out);
 			while ((n = input.read(buffer)) != -1) {
 				output.write(buffer, 0, n);
+				now += 4096;
+				if (now > 0 && max > 0) {
+					if (sub) {
+						SplashUpdater.setSubProgress((int)(now / max * 100.0));
+					} else {
+						SplashUpdater.setProgress((int)(now / max * 100.0));
+					}
+				}
 			}
 			output.flush();
 			String sum = getToHex(md.digest());
 			if (checksum.equals(sum)) {
+				System.out.println(out.getName() + " downloaded");
 				return; //OK
 			} else {
 				System.out.println(checksum + " is no match for " + sum);
@@ -89,13 +106,13 @@ public class DataGetter {
 		if (tries < 10){ //Retry 10 times
 			out.delete();
 			tries++;
-			get(link, out, checksum, tries);
+			get(link, out, checksum, sub, tries);
 		} else { //Failed 10 times, I give up...
 			if (exception != null) {
 				exception.printStackTrace();
-				throw new RuntimeException("Failed to download: " + out.getName(), exception);
+				throw new OnlineError("Failed to download:\r\n" + link + "\r\nTo\r\n" + out.getName(), exception);
 			} else {
-				throw new RuntimeException("Failed to download: " + out.getName());
+				throw new OnlineError("Failed to download:\r\n" + link + "\r\nTo\r\n" + out.getName(), exception);
 			}
 		}
 	}

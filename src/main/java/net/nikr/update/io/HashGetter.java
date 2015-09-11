@@ -29,11 +29,12 @@ import java.nio.charset.MalformedInputException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import net.nikr.update.update.LocalError;
 
 
 public class HashGetter {
 
-	public boolean get(File in, String checksum) {
+	public boolean get(File in, String checksum) throws LocalError {
 		if (!in.exists()) {
 			return false;
 		}
@@ -50,17 +51,17 @@ public class HashGetter {
 			String sum = getToHex(md.digest());
 			return checksum.equals(sum);
 		} catch (MalformedInputException ex) {
-			throw new RuntimeException("Failed to hash: " + in.getName(), ex);
+			throw new LocalError("Failed to hash: " + in.getName(), ex);
 		} catch (IOException ex) {
-			throw new RuntimeException("Failed to hash: " + in.getName(), ex);
+			throw new LocalError("Failed to hash: " + in.getName(), ex);
 		} catch (NoSuchAlgorithmException ex) {
-			throw new RuntimeException("Failed to hash: " + in.getName(), ex);
+			throw new LocalError("Failed to hash: " + in.getName(), ex);
 		} finally {
 			if (input != null) {
 				try {
 					input.close();
 				} catch (IOException ex) {
-					ex.printStackTrace();
+					//I give up...
 				}
 			}
 		}
