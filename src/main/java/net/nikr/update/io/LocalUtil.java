@@ -23,17 +23,15 @@ package net.nikr.update.io;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.nikr.update.update.LocalError;
 
 public class LocalUtil {
 
-	public static File getUpdateDir() throws LocalError {
-		return getUpdateDir("never-used-filename").getParentFile();
+	public static File getTempDir() throws LocalError {
+		return LocalUtil.getTempDir("never-used-filename").getParentFile();
 	}
 
-	public static File getUpdateDir(final String filename) throws LocalError {
+	public static File getTempDir(final String filename) throws LocalError {
 		File userDir = new File(System.getProperty("user.home", "."));
 		File file = new File(userDir.getAbsolutePath() + File.separator + ".jupdate" + File.separator + filename);
 		File parentDir = file.getParentFile();
@@ -43,11 +41,11 @@ public class LocalUtil {
 		return file;
 	}
 
-	public static File getOutputDir(final String jarFile, final boolean mkdirs) throws LocalError {
-		return getOutputDir(jarFile, "never-used-filename", mkdirs).getParentFile();
+	public static File getProgramDir(final String jarFile, final boolean mkdirs) throws LocalError {
+		return LocalUtil.getProgramDir(jarFile, "never-used-filename", mkdirs).getParentFile();
 	}
 
-	public static File getOutputDir(final String jarFile, final String filename, final boolean mkdirs) throws LocalError {
+	public static File getProgramDir(final String jarFile, final String filename, final boolean mkdirs) throws LocalError {
 		File file = new File(jarFile);
 		file = new File(file.getParent() + File.separator + filename);
 		File parentDir = file.getParentFile();
@@ -55,20 +53,6 @@ public class LocalUtil {
 			throw new LocalError("Failed make directories:\r\n" + parentDir.getAbsolutePath());
 		}
 		return file;
-	}
-
-	public static void deleteDirectory(final File folder) {
-		File[] files = folder.listFiles();
-		if (files != null) { //some JVMs return null for empty dirs
-			for (File f : files) {
-				if (f.isDirectory()) {
-					deleteDirectory(f);
-				} else {
-					f.delete();
-				}
-			}
-		}
-		folder.delete();
 	}
 
 	public static void execute(final String... commands) throws LocalError {
@@ -113,7 +97,7 @@ public class LocalUtil {
 	public static boolean canWrite(String jarFile) {
 		try {
 			//Get test file
-			File outputDir = getOutputDir(jarFile, "write_test", true);
+			File outputDir = LocalUtil.getProgramDir(jarFile, "write_test", true);
 			//Create the test file
 			if (!outputDir.createNewFile()) {
 				return false;

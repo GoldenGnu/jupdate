@@ -22,12 +22,14 @@
 package net.nikr.update.update.impl;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.ArrayList;
 import java.util.List;
 import net.nikr.update.SplashUpdater;
 import net.nikr.update.io.ListGetter;
 import net.nikr.update.io.LocalUtil;
-import static net.nikr.update.io.LocalUtil.deleteDirectory;
 import net.nikr.update.io.OnlineUtil;
 import net.nikr.update.update.LocalError;
 import net.nikr.update.update.OnlineError;
@@ -45,37 +47,25 @@ public class UpdateFileList implements Updater {
 			throw new OnlineError("Failed to download file list:\r\n" + link + "list.php");
 		}
 		int increase = 100 / files.size();
-		//Delete update directory
-		File updateDir = LocalUtil.getUpdateDir();
-		LocalUtil.deleteDirectory(updateDir);
 		//Download files
 		List<String> downloadedFiles = new ArrayList<String>();
 		for (String filename : files) {
 			SplashUpdater.addProgress(increase);
-			boolean downloaded = OnlineUtil.downloadFile(link+filename, LocalUtil.getUpdateDir(filename), LocalUtil.getOutputDir(jarFile, filename, false), true);
+			boolean downloaded = OnlineUtil.downloadFile(link+filename, LocalUtil.getTempDir(filename), LocalUtil.getProgramDir(jarFile, filename, false), true);
 			if (downloaded) {
 				downloadedFiles.add(filename);
 			}
 		}
 		//Move updated files to final destination
 		for (String filename : downloadedFiles) {
-			File from = LocalUtil.getUpdateDir(filename);
-			File to = LocalUtil.getOutputDir(jarFile, filename, true);
-			if (to.exists()) { //Delete old file
-				boolean delete = to.delete();
-				if (!delete) {
-					throw new LocalError("Failed to delete file:\r\n" + to.getName());
-				}
-			}
-			boolean renamed = from.renameTo(to);
-			if (renamed) {
-				System.out.println(to.getName() + " moved");
-			} else {
+			File from = LocalUtil.getTempDir(filename);
+			File to = LocalUtil.getProgramDir(jarFile, filename, true);
+			try {
+				Files.move(from.toPath(), to.toPath(), REPLACE_EXISTING);
+			} catch (IOException ex) {
 				throw new LocalError("Failed to move file from:\r\n" + from.getAbsolutePath() + "\r\nto:\r\n" + to.getAbsolutePath());
 			}
 		}
-		//Delete update directory
-		deleteDirectory(updateDir);
 		SplashUpdater.setProgress(100);
 		LocalUtil.execute(LocalUtil.isWindows() ? "javaw" : "java", "-jar", jarFile);
 	}

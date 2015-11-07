@@ -33,17 +33,17 @@ public class UpdateInstaller implements Updater {
 
 	@Override
 	public void update(String link, String jarFile) throws LocalError, OnlineError {
-		File localInstallFile = LocalUtil.getUpdateDir("installer.jar");
+		File localInstallFile = LocalUtil.getTempDir("installer.jar");
 		//Download installer
 		OnlineUtil.downloadFile(link + "installer.jar", localInstallFile, localInstallFile, false);
 		//Run installer
 		if (LocalUtil.isWindows()) { //Windows
 			LocalUtil.execute(
 				"javaw"
-				,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+				,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
 				,"-DrunOnExit=true"
 				,"-jar"
-				,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+				,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 				,"-options-system"
 				);
 		} else if (LocalUtil.isUnix()) { //Unix
@@ -54,10 +54,10 @@ public class UpdateInstaller implements Updater {
 					true
 					,"pkexec"
 					,"java"
-					,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+					,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
 					//,"-DrunOnExit=true"
 					,"-jar"
-					,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+					,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 					,"-options-system"
 					);
 			} else if (LocalUtil.executeTest("gksudo" ,"--help")) {
@@ -67,10 +67,10 @@ public class UpdateInstaller implements Updater {
 					,"gksudo"
 					,"--"
 					,"java"
-					,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+					,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
 					//,"-DrunOnExit=true"
 					,"-jar"
-					,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+					,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 					,"-options-system"
 					);
 			} else if (LocalUtil.executeTest("kdesudo" ,"--help")) {
@@ -80,10 +80,10 @@ public class UpdateInstaller implements Updater {
 					,"kdesudo"
 					,"--"
 					,"java"
-					,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+					,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
 					//,"-DrunOnExit=true"
 					,"-jar"
-					,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+					,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 					,"-options-system"
 					);
 			} else if (LocalUtil.executeTest("xterm" ,"--help")) {
@@ -96,9 +96,9 @@ public class UpdateInstaller implements Updater {
 					,"-e"
 					,"sudo"
 					,"java"
-					,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+					,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
 					,"-jar"
-					,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+					,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 					,"-options-system"
 					);
 			} else {
@@ -109,10 +109,10 @@ public class UpdateInstaller implements Updater {
 		} else { //Others (Mac untested)
 			LocalUtil.execute(
 				"java"
-				,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+				,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
 				,"-DrunOnExit=true"
 				,"-jar"
-				,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+				,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 				,"-options-system"
 				);
 		}
