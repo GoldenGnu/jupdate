@@ -36,7 +36,7 @@ public class Program {
 	protected Program() {}
 
 	public Program(final String link, final String jarFile) {
-		
+		update(link, jarFile);
 		SplashUpdater.hide();
 		System.exit(0);
 	}
