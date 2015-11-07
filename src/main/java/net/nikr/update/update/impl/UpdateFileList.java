@@ -80,8 +80,14 @@ public class UpdateFileList implements Updater {
 		LocalUtil.execute(LocalUtil.isWindows() ? "javaw" : "java", "-jar", jarFile);
 	}
 
+	/**
+	 * Works without problems as long as we have write access
+	 * @param link
+	 * @param jarFile
+	 * @return 
+	 */
 	@Override
 	public boolean use(String link, String jarFile) {
-		return OnlineUtil.exists(link + "list.php");
+		return OnlineUtil.exists(link + "list.php") && LocalUtil.canWrite(jarFile);
 	}
 }

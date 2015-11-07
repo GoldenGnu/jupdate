@@ -23,8 +23,9 @@ package net.nikr.update.io;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.nikr.update.update.LocalError;
-import net.nikr.update.update.OnlineError;
 
 public class LocalUtil {
 
@@ -71,6 +72,10 @@ public class LocalUtil {
 	}
 
 	public static void execute(final String... commands) throws LocalError {
+		execute(false, commands);
+	}
+
+	public static void execute(final boolean wait, final String... commands) throws LocalError {
 		ProcessBuilder processBuilder = new ProcessBuilder();
 		//processBuilder.redirectErrorStream(true);
 		processBuilder.directory(getJavaHome());
@@ -78,13 +83,60 @@ public class LocalUtil {
 		processBuilder.command(commands);
 		try {
 			Process process = processBuilder.start();
+			if (wait) {
+				try {
+					process.waitFor();
+				} catch (InterruptedException ex) {
+					//No problem
+				}
+			}
 		} catch (IOException ex) {
 			throw new LocalError("Failed run restart command", ex);
 		}
 	}
 
+	public static boolean executeTest(final String... commands) throws LocalError {
+		ProcessBuilder processBuilder = new ProcessBuilder();
+		//processBuilder.redirectErrorStream(true);
+		processBuilder.directory(getJavaHome());
+		System.out.println("execute:" + Arrays.toString(commands));
+		processBuilder.command(commands);
+		try {
+			Process process = processBuilder.start();
+			return true;
+		} catch (IOException ex) {
+			
+		}
+		return false;
+	}
+
+	public static boolean canWrite(String jarFile) {
+		try {
+			//Get test file
+			File outputDir = getOutputDir(jarFile, "write_test", true);
+			//Create the test file
+			if (!outputDir.createNewFile()) {
+				return false;
+			}
+			//Delete the test file
+			if (!outputDir.delete()) {
+				return false;
+			}
+			return true; //All good
+		} catch (LocalError ex) {
+			return false;
+		} catch (IOException ex) {
+			return false;
+		}
+	}
+
 	public static boolean isWindows() {
 		return System.getProperty("os.name").startsWith("Windows");
+	}
+
+	public static boolean isUnix() {
+		return (System.getProperty("os.name").contains("nix") || System.getProperty("os.name").contains("nux") || System.getProperty("os.name").indexOf("aix") > 0 );
+		
 	}
 
 	private static File getJavaHome() {

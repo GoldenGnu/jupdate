@@ -20,6 +20,8 @@
  */
 package net.nikr.update;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JOptionPane;
 import net.nikr.update.update.LocalError;
 import net.nikr.update.update.OnlineError;
@@ -27,39 +29,52 @@ import net.nikr.update.update.Updaters;
 
 public class Program {
 
-	public static final String PROGRAM_VERSION = "2.0.0";
+	public static final String PROGRAM_VERSION = "2.0.0 DEV BUILD 1";
+	private List<LocalError> localErrors = new ArrayList<LocalError>();
+	private List<OnlineError> onlineErrors = new ArrayList<OnlineError>();
+
+	protected Program() {}
 
 	public Program(final String link, final String jarFile) {
-		this(link, jarFile, false);
-	}
-
-	public Program(final String link, final String jarFile, final boolean test) {
-		update(link, jarFile);
+		
 		SplashUpdater.hide();
-		if (!test) {
-			System.exit(0);
-		}
+		System.exit(0);
 	}
 
-	private void update(final String link, final String jarFile) {
-		if (Updaters.INSTALLER.use(link, jarFile)) {
-			try {
-				Updaters.INSTALLER.update(link, jarFile);
-			} catch (LocalError ex) {
-				JOptionPane.showMessageDialog(null, ex.getMessage(), "Local Error", JOptionPane.ERROR_MESSAGE);
-			} catch (OnlineError ex) {
-				JOptionPane.showMessageDialog(null, ex.getMessage(), "Online Error", JOptionPane.ERROR_MESSAGE);
-			}
-		} else if (Updaters.FILE_LIST.use(link, jarFile)) {
+	protected boolean update(String link, String jarFile) {
+		boolean updated = false;
+		if (Updaters.FILE_LIST.use(link, jarFile)) {
 			try {
 				Updaters.FILE_LIST.update(link, jarFile);
+				updated = true; //Update okay
 			} catch (LocalError ex) {
-				JOptionPane.showMessageDialog(null, ex.getMessage(), "Local Error", JOptionPane.ERROR_MESSAGE);
+				localErrors.add(ex);
 			} catch (OnlineError ex) {
-				JOptionPane.showMessageDialog(null, ex.getMessage(), "Online Error", JOptionPane.ERROR_MESSAGE);
+				onlineErrors.add(ex);
 			}
-		} else {
-			JOptionPane.showMessageDialog(null, "No download mirrors online\r\nPlease download the update from the official homepage", "Error", JOptionPane.ERROR_MESSAGE);
 		}
+		if (!updated && Updaters.INSTALLER.use(link, jarFile)) {
+			try {
+				Updaters.INSTALLER.update(link, jarFile);
+				updated = true; //Update okay
+			} catch (LocalError ex) {
+				localErrors.add(ex);
+			} catch (OnlineError ex) {
+				onlineErrors.add(ex);
+			}
+		}
+		if (!updated && localErrors.isEmpty() && onlineErrors.isEmpty()) {
+			//Only show mirror error when no other errors happened
+			JOptionPane.showMessageDialog(null, "No download mirrors online\r\nPlease download the update from the official homepage", "jUpdate: Error", JOptionPane.ERROR_MESSAGE);
+		}
+		if (!updated) { //Only show errors when everything failed
+			for (LocalError localError : localErrors) {
+				JOptionPane.showMessageDialog(null, localError.getMessage(), "jUpdate: Local Error", JOptionPane.ERROR_MESSAGE);
+			}
+			for (OnlineError onlineError : onlineErrors) {
+				JOptionPane.showMessageDialog(null, onlineError.getMessage(), "jUpdate: Online Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+		return updated;
 	}
 }

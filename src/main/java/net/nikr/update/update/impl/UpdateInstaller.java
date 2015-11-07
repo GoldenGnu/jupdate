@@ -37,16 +37,93 @@ public class UpdateInstaller implements Updater {
 		//Download installer
 		OnlineUtil.downloadFile(link + "installer.jar", localInstallFile, localInstallFile, false);
 		//Run installer
-		LocalUtil.execute(
-				LocalUtil.isWindows() ? "javaw" : "java"
+		if (LocalUtil.isWindows()) { //Windows
+			LocalUtil.execute(
+				"javaw"
 				,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
 				,"-DrunOnExit=true"
 				,"-jar"
 				,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
 				,"-options-system"
 				);
+		} else if (LocalUtil.isUnix()) { //Unix
+			//Update
+			if (LocalUtil.executeTest("pkexec" ,"--help")) {
+				//GUI 1/3 (ubuntu default)
+				LocalUtil.execute(
+					true
+					,"pkexec"
+					,"java"
+					,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+					//,"-DrunOnExit=true"
+					,"-jar"
+					,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+					,"-options-system"
+					);
+			} else if (LocalUtil.executeTest("gksudo" ,"--help")) {
+				//GUI 2/3
+				LocalUtil.execute(
+					true
+					,"gksudo"
+					,"--"
+					,"java"
+					,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+					//,"-DrunOnExit=true"
+					,"-jar"
+					,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+					,"-options-system"
+					);
+			} else if (LocalUtil.executeTest("kdesudo" ,"--help")) {
+				//GUI 3/3
+				LocalUtil.execute(
+					true
+					,"kdesudo"
+					,"--"
+					,"java"
+					,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+					//,"-DrunOnExit=true"
+					,"-jar"
+					,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+					,"-options-system"
+					);
+			} else if (LocalUtil.executeTest("xterm" ,"--help")) {
+				//CLI Fallback
+				LocalUtil.execute(
+					true
+					,"xterm"
+					,"-T"
+					,"jUpdate installer"
+					,"-e"
+					,"sudo"
+					,"java"
+					,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+					,"-jar"
+					,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+					,"-options-system"
+					);
+			} else {
+				throw new LocalError("Failed to find a way to sudo\r\n\r\nInstall one of the following and retry:\r\n- pkexec\r\n- gksudo\r\n- kdesudo\r\n- xterm");
+			}
+			//Run jar
+			LocalUtil.execute("java", "-jar", jarFile);
+		} else { //Others (Mac untested)
+			LocalUtil.execute(
+				"java"
+				,"-DINSTALL_PATH=" + LocalUtil.getOutputDir(jarFile, false).getAbsolutePath().replace("\\", "/")
+				,"-DrunOnExit=true"
+				,"-jar"
+				,LocalUtil.getUpdateDir("installer.jar").getAbsolutePath()
+				,"-options-system"
+				);
+		}
 	}
 
+	/**
+	 * Works when we don't have write access
+	 * @param link
+	 * @param jarFile
+	 * @return 
+	 */
 	@Override
 	public boolean use(String link, String jarFile) {
 		return OnlineUtil.exists(link + "installer.jar") && OnlineUtil.exists(link + "installer.jar.md5");
