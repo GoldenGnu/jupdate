@@ -29,7 +29,7 @@ import net.nikr.update.update.Updaters;
 
 public class Program {
 
-	public static final String PROGRAM_VERSION = "2.1.0";
+	public static final String PROGRAM_VERSION = "2.1.1";
 	private List<LocalError> localErrors = new ArrayList<LocalError>();
 	private List<OnlineError> onlineErrors = new ArrayList<OnlineError>();
 
