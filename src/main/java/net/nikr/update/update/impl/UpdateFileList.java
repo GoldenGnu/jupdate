@@ -62,12 +62,40 @@ public class UpdateFileList implements Updater {
 			File to = LocalUtil.getProgramDir(jarFile, filename, true);
 			try {
 				Files.move(from.toPath(), to.toPath(), REPLACE_EXISTING);
+			} catch (NoSuchMethodError ex) {
+				java6move(downloadedFiles, jarFile);
+				break;
 			} catch (IOException ex) {
 				throw new LocalError("Failed to move file from:\r\n" + from.getAbsolutePath() + "\r\nto:\r\n" + to.getAbsolutePath());
 			}
 		}
 		SplashUpdater.setProgress(100);
 		LocalUtil.execute(LocalUtil.isWindows() ? "javaw" : "java", "-jar", jarFile);
+	}
+
+	private void java6move(List<String> downloadedFiles, String jarFile) throws LocalError {
+		for (String filename : downloadedFiles) {
+			File from = LocalUtil.getTempDir(filename);
+			File to = LocalUtil.getProgramDir(jarFile, filename, true);
+			if (to.exists()) { //Delete old file
+				boolean delete = to.delete();
+				if (!delete) {
+					throw new LocalError("Failed to delete file:\r\n" + to.getName());
+				}
+			}
+			boolean renamed = from.renameTo(to);
+			if (renamed) {
+				System.out.println(to.getName() + " moved");
+			} else {
+				throw new LocalError("Failed to move file from:\r\n"
+						+ from.getAbsolutePath() + "\r\n"
+						+ "to:\r\n"
+						+ to.getAbsolutePath() + "\r\n"
+						+ "\r\n"
+						+ "Updating to Java 7 or later may fix the problem"
+						);
+			}
+		}
 	}
 
 	/**
