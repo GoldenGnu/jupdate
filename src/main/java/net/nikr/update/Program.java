@@ -20,7 +20,16 @@
  */
 package net.nikr.update;
 
+import java.io.IOException;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
+import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.JOptionPane;
 import net.nikr.update.update.LocalError;
@@ -29,19 +38,20 @@ import net.nikr.update.update.Updaters;
 
 public class Program {
 
-	public static final String PROGRAM_VERSION = "2.1.2";
-	private List<LocalError> localErrors = new ArrayList<LocalError>();
-	private List<OnlineError> onlineErrors = new ArrayList<OnlineError>();
+	public static final String PROGRAM_VERSION = "2.1.3-SNAPSHOT";
+	private final List<LocalError> localErrors = new ArrayList<LocalError>();
+	private final List<OnlineError> onlineErrors = new ArrayList<OnlineError>();
 
 	protected Program() {}
 
 	public Program(final String link, final String jarFile) {
+		setProxy();
 		update(link, jarFile);
 		SplashUpdater.hide();
 		System.exit(0);
 	}
 
-	protected boolean update(String link, String jarFile) {
+	protected final boolean update(String link, String jarFile) {
 		boolean updated = false;
 		if (Updaters.FILE_LIST.use(link, jarFile)) {
 			try {
@@ -76,5 +86,76 @@ public class Program {
 			}
 		}
 		return updated;
+	}
+
+	private void setProxy() {
+		//XXX - Workaround: Allow basic proxy authorization
+		System.setProperty("jdk.http.auth.tunneling.disabledSchemes", "");
+		System.setProperty("jdk.http.auth.proxying.disabledSchemes", "");
+
+		//Set http proxy from https settings
+		if (System.getProperty("https.proxyHost") != null) {
+			System.setProperty("http.proxyHost", System.getProperty("https.proxyHost"));
+		}
+		if (System.getProperty("https.proxyPort") != null) {
+			System.setProperty("http.proxyPort", System.getProperty("https.proxyPort"));
+		}
+		if (System.getProperty("https.proxyUser") != null) {
+			System.setProperty("http.proxyUser", System.getProperty("https.proxyUser"));
+		}
+		if (System.getProperty("https.proxyPassword") != null) {
+			System.setProperty("http.proxyPassword", System.getProperty("https.proxyPassword"));
+		}
+
+		//Set socks username and password
+		if (System.getProperty("java.net.socks.username") != null && System.getProperty("java.net.socks.password") != null) {
+			Authenticator.setDefault(new ProxyAuth(System.getProperty("java.net.socks.username"), System.getProperty("java.net.socks.password")));
+		}
+		//Set https username and password
+		if (System.getProperty("https.proxyUser") != null && System.getProperty("https.proxyPassword") != null) {
+			Authenticator.setDefault(new ProxyAuth(System.getProperty("https.proxyUser"), System.getProperty("https.proxyPassword")));
+		}
+		//Set socks host and port
+		if (System.getProperty("socksProxyHost") != null && System.getProperty("socksProxyPort") != null) {
+			ProxySelector.setDefault(new ProxyHost(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(System.getProperty("socksProxyHost"), Integer.valueOf(System.getProperty("socksProxyPort"))))));
+		}
+		//Set https host and port
+		if (System.getProperty("https.proxyHost") != null && System.getProperty("https.proxyPort") != null) {
+			ProxySelector.setDefault(new ProxyHost(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(System.getProperty("https.proxyHost"), Integer.valueOf(System.getProperty("https.proxyPort"))))));
+		}
+	}
+
+	public static class ProxyAuth extends Authenticator {
+
+		private final PasswordAuthentication auth;
+
+		private ProxyAuth(String user, String password) {
+			auth = new PasswordAuthentication(user, password == null ? new char[]{} : password.toCharArray());
+		}
+
+		@Override
+		protected PasswordAuthentication getPasswordAuthentication() {
+			return auth;
+		}
+	}
+
+	public static class ProxyHost extends ProxySelector {
+
+		private final Proxy proxy;
+
+		public ProxyHost(Proxy proxy) {
+			this.proxy = proxy;
+		}
+
+		@Override
+		public List<Proxy> select(URI uri) {
+			return Collections.singletonList(proxy);
+		}
+
+		@Override
+		public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
+
+		}
+
 	}
 }
