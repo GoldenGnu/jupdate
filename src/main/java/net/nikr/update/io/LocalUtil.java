@@ -22,7 +22,10 @@ package net.nikr.update.io;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import net.nikr.update.update.LocalError;
 
 public class LocalUtil {
@@ -59,11 +62,14 @@ public class LocalUtil {
 		execute(false, commands);
 	}
 
-	public static void execute(final boolean wait, final String... commands) throws LocalError {
+	public static void execute(final boolean wait, final String... strings) throws LocalError {
 		ProcessBuilder processBuilder = new ProcessBuilder();
+		List<String> commands = new ArrayList<String>(Arrays.asList(strings));
+		Collections.replaceAll(commands, "java", System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
+		Collections.replaceAll(commands, "javaw", System.getProperty("java.home") + File.separator + "bin" + File.separator + "javaw");
 		//processBuilder.redirectErrorStream(true);
 		processBuilder.directory(getJavaHome());
-		System.out.println("execute:" + Arrays.toString(commands));
+		System.out.println("execute:" + Arrays.toString(commands.toArray()));
 		processBuilder.command(commands);
 		try {
 			Process process = processBuilder.start();
