@@ -4,7 +4,7 @@
 	<groupId>net.nikr</groupId>
 	<artifactId>jupdate</artifactId>
 	<packaging>jar</packaging>
-	<version>2.1.5-SNAPSHOT</version>
+	<version>2.1.5</version>
 	<name>jUpdate</name>
 	<url>http://maven.apache.org</url>
 	<build>
