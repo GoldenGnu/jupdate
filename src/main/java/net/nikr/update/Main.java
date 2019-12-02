@@ -41,6 +41,11 @@ public final class Main {
 	 * @param args the command line arguments
 	 */
 	public static void main(final String[] args) {
+		//XXX - Workaround for IPv6 fail (force IPv4)
+		System.setProperty("java.net.preferIPv4Stack", "true");
+		//XXX - Workaround: javax.net.ssl.SSLHandshakeException: Received fatal alert: handshake_failure
+		System.setProperty("https.protocols", "SSLv3,TLSv1,TLSv1.1,TLSv1.2");
+
 		NikrUncaughtExceptionHandler.install();
 		final boolean stop;
 		if (args.length == 2) {
