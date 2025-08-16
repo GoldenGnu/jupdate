@@ -74,7 +74,7 @@ public final class Main {
 					JDialog.setDefaultLookAndFeelDecorated(true);
 
 					if (stop) {
-						JOptionPane.showMessageDialog(null, "jUpdate cannot be run by itself.\r\n\r\nNo worries:\r\nThe main program will automatically check for updates on startup.\r\n\r\n", "Sorry...", JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null, "jUpdate cannot be run by itself.\r\n\r\nNo worries:\r\nThe main program will automatically check for updates on startup.\r\n\r\n", "jUpdate " + Program.PROGRAM_VERSION, JOptionPane.INFORMATION_MESSAGE);
 						System.exit(0);
 					}
 

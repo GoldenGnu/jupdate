@@ -99,24 +99,10 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>wagon-maven-plugin</artifactId>
-				<version>1.0-beta-5</version>
+				<version>2.0.2</version>
 				<executions>
 					<execution>
-						<id>upload-jwarframe</id>
-						<phase>deploy</phase>
-						<goals>
-							<goal>upload</goal>
-						</goals>
-						<configuration>
-							<fromDir>${project.build.directory}</fromDir>
-							<includes>*.jar,*.md5</includes>
-							<serverId>eve-nikr-net</serverId>
-							<url>ftp://ftp.nikr.net</url>
-							<toDir>warframe.nikr.net/jwarframe/download/update</toDir>
-						</configuration>
-					</execution>
-					<execution>
-						<id>upload-jeveassets</id>
+						<id>upload-update</id>
 						<phase>deploy</phase>
 						<goals>
 							<goal>upload</goal>
@@ -125,8 +111,8 @@
 							<fromDir>${project.build.directory}</fromDir>
 							<includes>jupdate.jar,jupdate.jar.md5</includes>
 							<serverId>eve-nikr-net</serverId>
-							<url>ftp://ftp.nikr.net</url>
-							<toDir>/eve.nikr.net/jeveassets/update/</toDir>
+							<url>sftp://${upload.url}</url>
+							<toDir>${upload.jupdate}</toDir>
 						</configuration>
 					</execution>
 				</executions>
@@ -145,7 +131,12 @@
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
 				<artifactId>wagon-ftp</artifactId>
-				<version>2.6</version>
+				<version>3.5.2</version>
+			</extension>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>3.5.2</version>
 			</extension>
 		</extensions>
 	</build>
