@@ -45,6 +45,8 @@ public final class Main {
 		System.setProperty("java.net.preferIPv4Stack", "true");
 		//XXX - Workaround: javax.net.ssl.SSLHandshakeException: Received fatal alert: handshake_failure
 		System.setProperty("https.protocols", "SSLv3,TLSv1,TLSv1.1,TLSv1.2");
+		//User Agent
+		System.setProperty("http.agent", "jUpdate/" + Program.PROGRAM_VERSION.replace(" ", "_") + " (nkr@niklaskr.dk)");
 
 		NikrUncaughtExceptionHandler.install();
 		final boolean stop;
