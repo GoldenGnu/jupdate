@@ -55,7 +55,7 @@ public class DataGetter {
 			int responseCode = con.getResponseCode();
 			if (responseCode != 200)  {
 				if (responseCode == 429) {
-					pause(10000);
+					OnlineUtil.breaksOn();
 				}
 			}
 
@@ -83,9 +83,9 @@ public class DataGetter {
 			}
 			output.flush();
 			String sum = getToHex(md.digest());
+			con.disconnect();
 			if (checksum.equals(sum)) {
 				System.out.println(out.getName() + " downloaded");
-				pause(1000);
 				return; //OK
 			} else {
 				System.out.println(out.getName() + " " + checksum + " is no match for " + sum);
@@ -136,13 +136,5 @@ public class DataGetter {
 			result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
 		}
 		return result;
-	}
-
-	private void pause(long ms) {
-		try {
-			Thread.sleep(ms);
-		} catch (InterruptedException ex) {
-			//No problem
-		}
 	}
 }
