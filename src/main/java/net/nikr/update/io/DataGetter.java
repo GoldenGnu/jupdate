@@ -51,6 +51,14 @@ public class DataGetter {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			URL url = new URL(link);
 			HttpURLConnection con = (HttpURLConnection)url.openConnection();
+
+			int responseCode = con.getResponseCode();
+			if (responseCode != 200)  {
+				if (responseCode == 429) {
+					pause(10000);
+				}
+			}
+
 			int max = con.getContentLength();
 			double now = 0;
 			if (sub) {
@@ -58,7 +66,7 @@ public class DataGetter {
 			} else {
 				SplashUpdater.setProgress(0);
 			}
-			
+
 			byte[] buffer = new byte[4096];
 			input = new DigestInputStream(con.getInputStream(), md);
 			output = new FileOutputStream(out);
@@ -77,29 +85,35 @@ public class DataGetter {
 			String sum = getToHex(md.digest());
 			if (checksum.equals(sum)) {
 				System.out.println(out.getName() + " downloaded");
+				pause(1000);
 				return; //OK
 			} else {
-				System.out.println(checksum + " is no match for " + sum);
+				System.out.println(out.getName() + " " + checksum + " is no match for " + sum);
 			}
 		} catch (MalformedInputException ex) {
+			System.out.println(ex.getMessage());
 			exception = ex;
 		} catch (IOException ex) {
+			System.out.println(ex.getMessage());
 			exception = ex;
 		} catch (NoSuchAlgorithmException ex) {
+			System.out.println(ex.getMessage());
 			exception = ex;
 		} finally {
 			if (input != null) {
 				try {
 					input.close();
 				} catch (IOException ex) {
-					ex.printStackTrace();
+					System.out.println(ex.getMessage());
+					exception = ex;
 				}
 			}
 			if (output != null) {
 				try {
 					output.close();
 				} catch (IOException ex) {
-					ex.printStackTrace();
+					System.out.println(ex.getMessage());
+					exception = ex;
 				}
 			}
 		}
@@ -109,10 +123,9 @@ public class DataGetter {
 			get(link, out, checksum, sub, tries);
 		} else { //Failed 10 times, I give up...
 			if (exception != null) {
-				exception.printStackTrace();
 				throw new OnlineError("Failed to download:\r\n" + link + "\r\nTo\r\n" + out.getName(), exception);
 			} else {
-				throw new OnlineError("Failed to download:\r\n" + link + "\r\nTo\r\n" + out.getName(), exception);
+				throw new OnlineError("Failed to download:\r\n" + link + "\r\nTo\r\n" + out.getName());
 			}
 		}
 	}
@@ -123,5 +136,13 @@ public class DataGetter {
 			result += Integer.toString((b[i] & 0xff) + 0x100, 16).substring(1);
 		}
 		return result;
+	}
+
+	private void pause(long ms) {
+		try {
+			Thread.sleep(ms);
+		} catch (InterruptedException ex) {
+			//No problem
+		}
 	}
 }

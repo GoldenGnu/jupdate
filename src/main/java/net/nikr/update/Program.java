@@ -39,8 +39,8 @@ import net.nikr.update.update.Updaters;
 public class Program {
 
 	public static final String PROGRAM_VERSION = "2.1.3-SNAPSHOT";
-	private final List<LocalError> localErrors = new ArrayList<LocalError>();
-	private final List<OnlineError> onlineErrors = new ArrayList<OnlineError>();
+	private final List<LocalError> localErrors = new ArrayList<>();
+	private final List<OnlineError> onlineErrors = new ArrayList<>();
 
 	protected Program() {}
 
@@ -117,11 +117,11 @@ public class Program {
 		}
 		//Set socks host and port
 		if (System.getProperty("socksProxyHost") != null && System.getProperty("socksProxyPort") != null) {
-			ProxySelector.setDefault(new ProxyHost(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(System.getProperty("socksProxyHost"), Integer.valueOf(System.getProperty("socksProxyPort"))))));
+			ProxySelector.setDefault(new ProxyHost(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(System.getProperty("socksProxyHost"), Integer.parseInt(System.getProperty("socksProxyPort"))))));
 		}
 		//Set https host and port
 		if (System.getProperty("https.proxyHost") != null && System.getProperty("https.proxyPort") != null) {
-			ProxySelector.setDefault(new ProxyHost(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(System.getProperty("https.proxyHost"), Integer.valueOf(System.getProperty("https.proxyPort"))))));
+			ProxySelector.setDefault(new ProxyHost(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(System.getProperty("https.proxyHost"), Integer.parseInt(System.getProperty("https.proxyPort"))))));
 		}
 	}
 

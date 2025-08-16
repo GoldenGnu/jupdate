@@ -32,23 +32,43 @@ public class TestUpdate {
 	private static final TestProgram PROGRAM = new TestProgram();
 
 	@Test @Ignore
-	public void EveAssetsProgramWriteProtected() {
+	public void jEveAssetsTestProgramProtected() {
 		runWriteProtected("http://eve.nikr.net/test/update/program/", JEVEASSETS_FILENAME);
 	}
 
 	@Test @Ignore
-	public void EveAssetsProgramOpen() {
+	public void jEveAssetsTestProgramOpen() {
 		runOpen("http://eve.nikr.net/test/update/program/", JEVEASSETS_FILENAME);
 	}
 
 	@Test @Ignore
-	public void EveAssetsDataWriteProtected() {
+	public void jEveAssetsDataTestProtected() {
 		runWriteProtected("http://eve.nikr.net/test/update/data/", JEVEASSETS_FILENAME);
 	}
 
 	@Test @Ignore
-	public void EveAssetsDataOpen() {
+	public void jEveAssetsDataTestOpen() {
 		runOpen("http://eve.nikr.net/test/update/data/", JEVEASSETS_FILENAME);
+	}
+
+	@Test @Ignore
+	public void jEveAssetsLiveProgramProtected() {
+		runWriteProtected("http://eve.nikr.net/jeveassets/update/program/", JEVEASSETS_FILENAME);
+	}
+
+	@Test @Ignore
+	public void jEveAssetsLiveProgramOpen() {
+		runOpen("http://eve.nikr.net/jeveassets/update/program/", JEVEASSETS_FILENAME);
+	}
+
+	@Test @Ignore
+	public void jEveAssetsDataLiveProtected() {
+		runWriteProtected("http://eve.nikr.net/jeveassets/update/data/", JEVEASSETS_FILENAME);
+	}
+
+	@Test @Ignore
+	public void jEveAssetsDataLiveOpen() {
+		runOpen("http://eve.nikr.net/jeveassets/update/data/", JEVEASSETS_FILENAME);
 	}
 
 	@Test @Ignore

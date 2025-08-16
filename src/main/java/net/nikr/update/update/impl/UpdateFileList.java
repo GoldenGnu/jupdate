@@ -48,7 +48,7 @@ public class UpdateFileList implements Updater {
 		}
 		int increase = 100 / files.size();
 		//Download files
-		List<String> downloadedFiles = new ArrayList<String>();
+		List<String> downloadedFiles = new ArrayList<>();
 		for (String filename : files) {
 			SplashUpdater.addProgress(increase);
 			boolean downloaded = OnlineUtil.downloadFile(link+filename, LocalUtil.getTempDir(filename), LocalUtil.getProgramDir(jarFile, filename, false), true);
@@ -106,6 +106,6 @@ public class UpdateFileList implements Updater {
 	 */
 	@Override
 	public boolean use(String link, String jarFile) {
-		return OnlineUtil.exists(link + "list.php") && LocalUtil.canWrite(jarFile);
+		return true;
 	}
 }
