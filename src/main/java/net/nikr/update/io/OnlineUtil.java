@@ -30,8 +30,6 @@ import net.nikr.update.update.OnlineError;
 
 
 public class OnlineUtil {
-
-	public static Long pause = null;
 	
 	public static boolean downloadFile(final String from, final File to, final File check, boolean sub) throws OnlineError, LocalError {
 		DataGetter getter = new DataGetter();
@@ -69,18 +67,15 @@ public class OnlineUtil {
 	}
 
 	public static void pause() {
-		if (pause != null) {
-			try {
-				Thread.sleep(pause);
-			} catch (InterruptedException ex) {
-				System.out.println(ex.getMessage());
-			}
+		try {
+			Thread.sleep(1000L);
+		} catch (InterruptedException ex) {
+			System.out.println(ex.getMessage());
 		}
 	}
 
 	public static void breaksOn() {
 		try {
-			pause = 1000L;
 			Thread.sleep(10000L);
 		} catch (InterruptedException ex) {
 			System.out.println(ex.getMessage());
