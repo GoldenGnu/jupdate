@@ -51,7 +51,7 @@ public class UpdateFileList implements Updater {
 				downloadedFiles.add(filename);
 			}
 			progress++;
-			SplashUpdater.setProgress((int)(progress / files.size() * 100.0));
+			SplashUpdater.setProgress((int)(100.0 * progress / files.size()));
 		}
 		//Move updated files to final destination
 		LocalUtil.move(jarFile, downloadedFiles);
