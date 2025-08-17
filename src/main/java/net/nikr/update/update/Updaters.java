@@ -6,6 +6,7 @@
 package net.nikr.update.update;
 
 import net.nikr.update.update.impl.UpdateFileList;
+import net.nikr.update.update.impl.UpdateGitHub;
 import net.nikr.update.update.impl.UpdateInstaller;
 
 /**
@@ -13,6 +14,7 @@ import net.nikr.update.update.impl.UpdateInstaller;
  * @author Niklas
  */
 public enum Updaters implements Updater {
+	GITHUB_ZIP(new UpdateGitHub()),
 	FILE_LIST(new UpdateFileList()),
 	INSTALLER(new UpdateInstaller())
 	;

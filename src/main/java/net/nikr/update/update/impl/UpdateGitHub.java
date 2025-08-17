@@ -18,10 +18,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
-
 package net.nikr.update.update.impl;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.List;
 import net.nikr.update.SplashUpdater;
 import net.nikr.update.io.ListGetter;
@@ -32,41 +31,40 @@ import net.nikr.update.update.OnlineError;
 import net.nikr.update.update.Updater;
 
 
-public class UpdateFileList implements Updater {
+public class UpdateGitHub implements Updater {
+
+	private static final String FILENAME = "github.update";
 
 	@Override
 	public void update(String link, String jarFile) throws LocalError, OnlineError {
-		//Download file list
+		//Download
 		ListGetter getter = new ListGetter();
-		List<String> files = getter.get(link + "list.php");
-		if (files.isEmpty()) {
-			throw new OnlineError("Failed to download file list:\r\n" + link + "list.php");
+		List<String> gitHubData = getter.get(link + FILENAME);
+		if (gitHubData.isEmpty()) {
+			throw new OnlineError(FILENAME + " is empty");
 		}
-		//Download files
-		List<String> downloadedFiles = new ArrayList<>();
-		int progress = 0;
-		for (String filename : files) {
-			boolean downloaded = OnlineUtil.downloadFile(link+filename, LocalUtil.getTempDir(filename), LocalUtil.getProgramDir(jarFile, filename, false), true);
-			if (downloaded) {
-				downloadedFiles.add(filename);
-			}
-			progress++;
-			SplashUpdater.setProgress((int)(progress / files.size() * 100.0));
+		String githubLink = gitHubData.remove(0);
+		List<String> files = null;
+		if (githubLink.endsWith(".zip")) {
+			String filename = githubLink.substring(Math.max(githubLink.lastIndexOf("/") + 1, 0));
+			File programZip = LocalUtil.getTempDir(filename);
+			OnlineUtil.downloadFile(githubLink, programZip);
+			//Unzip to temp
+			files = LocalUtil.unzip(programZip, gitHubData);
+		} else {
+			throw new LocalError("File type not supported");
 		}
-		//Move updated files to final destination
-		LocalUtil.move(jarFile, downloadedFiles);
+		
+		//Move file to program folder
+		LocalUtil.move(jarFile, files);
 		SplashUpdater.setProgress(100);
+		//Start
 		LocalUtil.execute(LocalUtil.isWindows() ? "javaw" : "java", "-jar", jarFile);
 	}
 
-	/**
-	 * Works without problems as long as we have write access
-	 * @param link
-	 * @param jarFile
-	 * @return 
-	 */
 	@Override
 	public boolean use(String link, String jarFile) {
-		return true;
+		return OnlineUtil.exists(link + FILENAME);
 	}
+	
 }

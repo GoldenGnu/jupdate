@@ -53,24 +53,19 @@ public class Program {
 
 	protected final boolean update(String link, String jarFile) {
 		boolean updated = false;
-		if (Updaters.FILE_LIST.use(link, jarFile)) {
-			try {
-				Updaters.FILE_LIST.update(link, jarFile);
-				updated = true; //Update okay
-			} catch (LocalError ex) {
-				localErrors.add(ex);
-			} catch (OnlineError ex) {
-				onlineErrors.add(ex);
-			}
-		}
-		if (!updated && Updaters.INSTALLER.use(link, jarFile)) {
-			try {
-				Updaters.INSTALLER.update(link, jarFile);
-				updated = true; //Update okay
-			} catch (LocalError ex) {
-				localErrors.add(ex);
-			} catch (OnlineError ex) {
-				onlineErrors.add(ex);
+		for (Updaters updater : Updaters.values()) {
+			if (!updated && updater.use(link, jarFile)) {
+				try {
+					updater.update(link, jarFile);
+					updated = true; //Update okay
+					break;
+				} catch (LocalError ex) {
+					System.out.println(ex.getMessage());
+					localErrors.add(ex);
+				} catch (OnlineError ex) {
+					System.out.println(ex.getMessage());
+					onlineErrors.add(ex);
+				}
 			}
 		}
 		if (!updated && localErrors.isEmpty() && onlineErrors.isEmpty()) {

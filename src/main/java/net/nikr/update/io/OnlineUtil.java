@@ -22,8 +22,12 @@
 package net.nikr.update.io;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import net.nikr.update.update.LocalError;
 import net.nikr.update.update.OnlineError;
@@ -50,6 +54,25 @@ public class OnlineUtil {
 				pause();
 				return true;
 			}
+		}
+	}
+
+	public static void downloadFile(final String from, final File to) throws OnlineError, LocalError {
+		try {
+			String location = from;
+			URL url;
+			do { //Handle redirects
+				url = new URL(location);
+				HttpURLConnection  connection = (HttpURLConnection) url.openConnection();
+				connection.setInstanceFollowRedirects(false);
+				location = connection.getHeaderField("Location");
+			} while (location != null);
+			try (InputStream in = url.openStream()) {
+				Files.copy(in, to.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				System.out.println(from.substring(Math.max(from.lastIndexOf("/") + 1, 0)) + " downloaded");
+			}
+		} catch (IOException ex) {
+			throw new OnlineError(ex);
 		}
 	}
 
