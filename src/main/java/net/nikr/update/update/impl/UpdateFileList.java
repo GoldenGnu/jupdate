@@ -35,7 +35,7 @@ import net.nikr.update.update.Updater;
 public class UpdateFileList implements Updater {
 
 	@Override
-	public void update(String link, String jarFile) throws LocalError, OnlineError {
+	public void update(String link, String jarFile, final List<String> args) throws LocalError, OnlineError {
 		//Download file list
 		ListGetter getter = new ListGetter();
 		List<String> files = getter.get(link + "list.php");
@@ -56,7 +56,7 @@ public class UpdateFileList implements Updater {
 		//Move updated files to final destination
 		LocalUtil.move(jarFile, downloadedFiles);
 		SplashUpdater.setProgress(100);
-		LocalUtil.execute(LocalUtil.isWindows() ? "javaw" : "java", "-jar", jarFile);
+		LocalUtil.restart(jarFile, args);
 	}
 
 	/**

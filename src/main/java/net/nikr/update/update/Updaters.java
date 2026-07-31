@@ -5,6 +5,7 @@
  */
 package net.nikr.update.update;
 
+import java.util.List;
 import net.nikr.update.update.impl.UpdateFileList;
 import net.nikr.update.update.impl.UpdateGitHub;
 import net.nikr.update.update.impl.UpdateInstaller;
@@ -25,8 +26,8 @@ public enum Updaters implements Updater {
 	}
 
 	@Override
-	public void update(String link, String jarFile) throws LocalError, OnlineError{
-		updater.update(link, jarFile);
+	public void update(String link, String jarFile, final List<String> args) throws LocalError, OnlineError{
+		updater.update(link, jarFile, args);
 	}
 
 	@Override

@@ -22,6 +22,7 @@
 package net.nikr.update.update.impl;
 
 import java.io.File;
+import java.util.List;
 import net.nikr.update.io.LocalUtil;
 import net.nikr.update.io.OnlineUtil;
 import net.nikr.update.update.LocalError;
@@ -32,16 +33,33 @@ import net.nikr.update.update.Updater;
 public class UpdateInstaller implements Updater {
 
 	@Override
-	public void update(String link, String jarFile) throws LocalError, OnlineError {
+	public void update(String link, String jarFile, final List<String> args) throws LocalError, OnlineError {
 		File localInstallFile = LocalUtil.getTempDir("installer.jar");
 		//Download installer
 		OnlineUtil.downloadFile(link + "installer.jar", localInstallFile, localInstallFile, false);
+		//Handle args/jmemory
+		File file = new File(jarFile);
+		String jmemory = file.getName().equalsIgnoreCase("jmemory.jar") ? "-Djmemory=true" : "";
+		String portable = "";
+		String lazysave = "";
+		for (String arg : args) {
+			if ("-portable".equalsIgnoreCase(arg) || "-p".equalsIgnoreCase(arg)) {
+				portable = "-Dportable=true";
+			}
+			if ("-lazysave".equalsIgnoreCase(arg) || "-z".equalsIgnoreCase(arg)) {
+				lazysave = "-Dlazysave=true";
+			}
+		}
 		//Run installer
 		if (LocalUtil.isWindows()) { //Windows
 			LocalUtil.execute(
-				"javaw"
+				false //Waiting does not work, as the installer starts a new privileged process
+				,"javaw"
 				,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
 				,"-DrunOnExit=true"
+				,jmemory
+				,portable
+				,lazysave
 				,"-jar"
 				,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 				,"-options-system"
@@ -55,7 +73,6 @@ public class UpdateInstaller implements Updater {
 					,"pkexec"
 					,"java"
 					,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
-					//,"-DrunOnExit=true"
 					,"-jar"
 					,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 					,"-options-system"
@@ -68,7 +85,6 @@ public class UpdateInstaller implements Updater {
 					,"--"
 					,"java"
 					,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
-					//,"-DrunOnExit=true"
 					,"-jar"
 					,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 					,"-options-system"
@@ -81,7 +97,6 @@ public class UpdateInstaller implements Updater {
 					,"--"
 					,"java"
 					,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
-					//,"-DrunOnExit=true"
 					,"-jar"
 					,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 					,"-options-system"
@@ -105,16 +120,17 @@ public class UpdateInstaller implements Updater {
 				throw new LocalError("Failed to find a way to sudo\r\n\r\nInstall one of the following and retry:\r\n- pkexec\r\n- gksudo\r\n- kdesudo\r\n- xterm");
 			}
 			//Run jar
-			LocalUtil.execute("java", "-jar", jarFile);
+			LocalUtil.restart(jarFile, args);
 		} else { //Others (Mac untested)
 			LocalUtil.execute(
-				"java"
+				true
+				,"java"
 				,"-DINSTALL_PATH=" + LocalUtil.getProgramDir(jarFile, false).getAbsolutePath().replace("\\", "/")
-				,"-DrunOnExit=true"
 				,"-jar"
 				,LocalUtil.getTempDir("installer.jar").getAbsolutePath()
 				,"-options-system"
 				);
+			LocalUtil.restart(jarFile, args);
 		}
 	}
 

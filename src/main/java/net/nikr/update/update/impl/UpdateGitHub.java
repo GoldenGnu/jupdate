@@ -36,7 +36,7 @@ public class UpdateGitHub implements Updater {
 	private static final String FILENAME = "github.update";
 
 	@Override
-	public void update(String link, String jarFile) throws LocalError, OnlineError {
+	public void update(String link, String jarFile, final List<String> args) throws LocalError, OnlineError {
 		//Download
 		ListGetter getter = new ListGetter();
 		List<String> gitHubData = getter.get(link + FILENAME);
@@ -59,7 +59,7 @@ public class UpdateGitHub implements Updater {
 		LocalUtil.move(jarFile, files);
 		SplashUpdater.setProgress(100);
 		//Start
-		LocalUtil.execute(LocalUtil.isWindows() ? "javaw" : "java", "-jar", jarFile);
+		LocalUtil.restart(jarFile, args);
 	}
 
 	@Override

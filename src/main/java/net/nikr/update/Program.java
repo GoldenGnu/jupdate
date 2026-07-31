@@ -38,25 +38,25 @@ import net.nikr.update.update.Updaters;
 
 public class Program {
 
-	public static final String PROGRAM_VERSION = "3.0.1";
+	public static final String PROGRAM_VERSION = "4.0.0";
 	private final List<LocalError> localErrors = new ArrayList<>();
 	private final List<OnlineError> onlineErrors = new ArrayList<>();
 
 	protected Program() {}
 
-	public Program(final String link, final String jarFile) {
+	public Program(final String link, final String jarFile, final List<String> args) {
 		setProxy();
-		update(link, jarFile);
+		update(link, jarFile, args);
 		SplashUpdater.hide();
 		System.exit(0);
 	}
 
-	protected final boolean update(String link, String jarFile) {
+	protected final boolean update(final String link, final String jarFile, final List<String> args) {
 		boolean updated = false;
 		for (Updaters updater : Updaters.values()) {
 			if (!updated && updater.use(link, jarFile)) {
 				try {
-					updater.update(link, jarFile);
+					updater.update(link, jarFile, args);
 					updated = true; //Update okay
 					break;
 				} catch (LocalError ex) {

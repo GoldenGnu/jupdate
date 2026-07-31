@@ -21,6 +21,8 @@
 
 package net.nikr.update;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -31,9 +33,10 @@ public final class Main {
 
 	private static String link;
 	private static String jarFile;
+	private static final List<String> args = new ArrayList<>();
 
 	private Main() {
-		Program program = new Program(link, jarFile);
+		new Program(link, jarFile, args);
 	}
 
 	/**
@@ -50,7 +53,7 @@ public final class Main {
 
 		NikrUncaughtExceptionHandler.install();
 		final boolean stop;
-		if (args.length == 2) {
+		if (args.length >= 2) {
 			//Link
 			if (args[0].endsWith("/")) {
 				link = args[0];
@@ -59,6 +62,9 @@ public final class Main {
 			}
 			System.out.println("Updating from: " + link);
 			jarFile = args[1];
+			for (int i = 2; i < args.length; i++) {
+				Main.args.add(args[i]);
+			}
 			stop = false;
 		} else {
 			stop = true;
@@ -82,7 +88,7 @@ public final class Main {
 
 					SplashUpdater.start();
 					SplashUpdater.setText("Loading Update");
-					Main main = new Main();
+					new Main();
 				}
 			});
 	}

@@ -21,9 +21,11 @@
 
 package net.nikr.update.update;
 
+import java.util.List;
+
 
 public interface Updater {
-	public void update(final String link, final String jarFile) throws LocalError, OnlineError;
+	public void update(final String link, final String jarFile, final List<String> args) throws LocalError, OnlineError;
 	public boolean use(final String link, final String jarFile);
 	
 }

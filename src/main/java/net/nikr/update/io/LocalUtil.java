@@ -159,9 +159,25 @@ public class LocalUtil {
 		execute(false, commands);
 	}
 
+	public static void restart(final String jarFile, final List<String> args) throws LocalError {
+		List<String> commands = new ArrayList<>();
+		if (LocalUtil.isWindows()) {
+			commands.add("javaw");
+		} else {
+			commands.add("java");
+		}
+		commands.add("-jar");
+		commands.add(jarFile);
+		commands.addAll(args);
+		execute(false, commands);
+	}
+
 	public static void execute(final boolean wait, final String... strings) throws LocalError {
+		execute(wait, new ArrayList<>(Arrays.asList(strings)));
+	}
+
+	public static void execute(final boolean wait, final List<String> commands) throws LocalError {
 		ProcessBuilder processBuilder = new ProcessBuilder();
-		List<String> commands = new ArrayList<>(Arrays.asList(strings));
 		Collections.replaceAll(commands, "java", System.getProperty("java.home") + File.separator + "bin" + File.separator + "java");
 		Collections.replaceAll(commands, "javaw", System.getProperty("java.home") + File.separator + "bin" + File.separator + "javaw");
 		//processBuilder.redirectErrorStream(true);
